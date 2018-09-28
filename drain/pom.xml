@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>ce-amq-drain</artifactId>
+    <version>1.0.0.Final-redhat-1g</version>
     <packaging>jar</packaging>
 
     <name>CE AMQ - Drain</name>

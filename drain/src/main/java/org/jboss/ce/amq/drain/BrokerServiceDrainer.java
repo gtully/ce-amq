@@ -30,6 +30,7 @@ import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.broker.region.Destination;
 import org.apache.activemq.broker.region.RegionBroker;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
@@ -54,9 +55,14 @@ public class BrokerServiceDrainer {
 
     public static void main(final String[] args) throws Exception {
         final String dataDir;
+        String meshUrlParam = null;
         switch(args.length) {
         case 0:
             dataDir = Utils.getSystemPropertyOrEnvVar(ACTIVEMQ_DATA);
+            break;
+        case 2:
+            dataDir = args[0];
+            meshUrlParam = args[1];
             break;
         default:
             dataDir = args[0];
@@ -97,8 +103,11 @@ public class BrokerServiceDrainer {
         String queryInterval = Utils.getSystemPropertyOrEnvVar("amq.mesh.query.interval", "3");
         String meshURL = String.format(MESH_URL_FORMAT, meshServiceName, queryInterval);
 
+        if (meshUrlParam != null) {
+            meshURL = meshUrlParam;
+        }
         // programmatically add the draining bridge, depends on the mesh url only (could be in the xml config either)
-        log.info("Creating network connector.");
+        log.info("Creating network connector with url: " + meshURL );
         NetworkConnector drainingNetworkConnector = broker.addNetworkConnector(meshURL);
         drainingNetworkConnector.setUserName(getUsername());
         drainingNetworkConnector.setPassword(getPassword());
@@ -117,7 +126,13 @@ public class BrokerServiceDrainer {
             log.info("Starting broker with data directory " + kahaDbDir);
             broker.start(true);
             broker.waitUntilStarted();
-            log.info("Started broker.");
+            log.info("Started broker, pending messages: " + ((RegionBroker)broker.getRegionBroker()).getDestinationStatistics().getMessages().getCount());
+
+            if (true) {
+                for (Destination destination : ((RegionBroker)broker.getRegionBroker()).getDestinationMap().values()) {
+                    log.info("Destination " + destination.getActiveMQDestination() + ", pending messages: " + destination.getDestinationStatistics().getMessages().getCount());
+                }
+            }
 
             long msgs;
             while ((msgs = ((RegionBroker)broker.getRegionBroker()).getDestinationStatistics().getMessages().getCount()) > 0) {

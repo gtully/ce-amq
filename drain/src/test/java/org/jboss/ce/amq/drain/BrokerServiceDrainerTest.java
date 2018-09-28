@@ -225,7 +225,7 @@ public class BrokerServiceDrainerTest {
       log.info("do drain..");
 
 
-      BrokerServiceDrainer.main(new String[]{dataDir.getAbsolutePath(), "mkahadb"});
+      BrokerServiceDrainer.main(new String[]{dataDir.getAbsolutePath()});
 
       assertEquals("all messages forwarded to mesh", 20,
                    ((RegionBroker)meshBroker.getRegionBroker()).getDestinationStatistics().getEnqueues().getCount());
@@ -280,7 +280,7 @@ public class BrokerServiceDrainerTest {
       log.info("do drain..");
 
 
-      BrokerServiceDrainer.main(new String[]{dataDir.getAbsolutePath(), "mkahadb"});
+      BrokerServiceDrainer.main(new String[]{dataDir.getAbsolutePath()});
 
       assertEquals("all messages forwarded to mesh", 20,
                    ((RegionBroker)meshBroker.getRegionBroker()).getDestinationStatistics().getEnqueues().getCount());
